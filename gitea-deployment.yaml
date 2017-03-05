@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gitea
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gitea
+    spec:
+      containers:
+        - image: gitea/gitea:latest
+          imagePullPolicy: Always
+          name: gitea
+          env:
+            - name: DRONE_SERVER_ADDR
+              value: ":8000"
+            - name: I_UNDERSTAND_I_AM_USING_AN_UNSTABLE_VERSION
+              value: "true"
+            - name: I_AGREE_TO_FIX_BUGS_AND_NOT_FILE_BUGS
+              value: "true"
+          ports:
+            # SSH
+            - containerPort: 22
+              protocol: TCP
+            # Web
+            - containerPort: 3000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 1
+              memory: 1G
+          volumeMounts:
+          - mountPath: /var/tmp/gitea
+            name: db-volume
+      volumes:
+      - name: db-volume
+        hostPath:
+          # directory location on host
+          path: /var/tmp/gitea

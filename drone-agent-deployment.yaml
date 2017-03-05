@@ -1,0 +1,53 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: drone-agent
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: drone-agent
+    spec:
+      containers:
+        - image: docker:1.12.6-dind
+          name: dind
+          ports:
+            - containerPort: 2375
+              protocol: TCP
+          securityContext:
+            privileged: true
+        - image: drone/drone:0.5
+          imagePullPolicy: Always
+          name: drone-agent
+          command:
+            - "/drone"
+            - "agent"
+          env:
+            - name: I_UNDERSTAND_I_AM_USING_AN_UNSTABLE_VERSION
+              value: "true"
+            - name: I_AGREE_TO_FIX_BUGS_AND_NOT_FILE_BUGS
+              value: "true"
+
+            - name: DRONE_DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: drone-config
+                  key: agent.debug.is.enabled
+            - name: DRONE_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: drone-config
+                  key: agent.drone.server.url
+            - name: DRONE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: drone-secrets
+                  key: server.secret
+
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+          resources:
+            requests:
+              cpu: 1
+              memory: 1G

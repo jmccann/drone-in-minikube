@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: drone-config
+data:
+  ################################
+  # Drone Server (master) Config #
+  ################################
+
+  server.debug.is.enabled: "true"
+
+  # You'll probably want to leave this alone, but you can point to external
+  # DB instances if you'd like: http://readme.drone.io/0.5/manage/database/
+  # server.database.driver: postgres
+  server.database.driver: sqlite3
+  server.database.config: /var/lib/drone/drone.sqlite
+
+  server.is.open: "true"
+  # CHANGEME: If you want to restrict access to a particular org, put the
+  # name here.
+  server.orgs.list: ""
+  # CHANGEME: Add your GitHub/Bitbucket/Gogs/etc username here. This is a
+  # comma-separated list of usernames who will have admin privs.
+  server.admin.list: jmccann
+  server.admin.everyone.is.admin: "false"
+
+  server.remote.gogs.is.enabled: "true"
+  server.remote.gogs.url: http://gitea:30080
+
+  ######################
+  # Drone Agent Config #
+  ######################
+
+  agent.debug.is.enabled: "false"
+  # CHANGEME: Change this to point to the same FQDN as proxy.fqdn above.
+  agent.drone.server.url: ws://drone-server:8000/ws/broker
